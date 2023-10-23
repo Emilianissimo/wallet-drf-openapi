@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  web:
+    container_name: web_wallet_python
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    command: "python3.11 web_wallet/manage.py runserver 0.0.0.0:8000"
+    env_file:
+      - ./.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/var/www/app
+    depends_on:
+      - db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  db:
+    image: mysql:8.1
+    container_name: web_wallet_db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=pass
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pass
+      - MYSQL_DATABASE=web_wallet_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - web_wallet_db:/var/lib/mysql
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  web_wallet_db:
